@@ -1,66 +1,36 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import type { ProjectMetrics } from "../lib/types";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+async function getData(): Promise<{ projects: ProjectMetrics[] }> {
+  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
+  const res = await fetch(`${base}/api/summary`, { next: { revalidate: 3600 } });
+  return res.json();
+}
+
+export default async function Page() {
+  const { projects } = await getData();
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>To get started, edit the page.tsx file.</h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main style={{ maxWidth: 880, margin: "0 auto", padding: 24, fontFamily: "system-ui" }}>
+      <h1>Armory Analytics</h1>
+      <p style={{ color: "#888" }}>365 things in a year — ranked by promotion score.</p>
+      <table style={{ width: "100%", borderCollapse: "collapse" }}>
+        <thead>
+          <tr><th align="left">#</th><th align="left">Project</th><th>Kind</th><th>Audience</th><th>Score</th><th>Graduate?</th></tr>
+        </thead>
+        <tbody>
+          {projects.map((p) => (
+            <tr key={p.id} style={{ borderTop: "1px solid #eee" }}>
+              <td>{p.id}</td>
+              <td>{p.name}</td>
+              <td align="center">{p.kind}</td>
+              <td align="center">{p.kind === "web" ? `${p.web?.visitors ?? 0} vis` : `${p.downloads ?? 0} dl`}</td>
+              <td align="center"><b>{p.score}</b></td>
+              <td align="center">{p.graduate ? "✅" : "—"}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </main>
   );
 }
