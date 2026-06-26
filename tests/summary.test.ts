@@ -1,6 +1,27 @@
 import { test, expect } from "vitest";
 import { buildSummary } from "../lib/summary";
 
+test("buildSummary degrades to zero-score row when getWebStats throws", async () => {
+  const out = await buildSummary({
+    loadProjects: async () => [
+      { id: 1, name: "Broken", slug: "b", track: "live", status: "done", url: "https://h.test/b/", repo: "", download: "" },
+      { id: 2, name: "Desk", slug: "d", track: "desktop", status: "done", url: "", repo: "https://github.com/o/d", download: "x" },
+    ],
+    getWebStats: async () => { throw new Error("Umami down"); },
+    getDownloads: async () => 50,
+  });
+  // Must resolve (not reject) even though getWebStats throws
+  expect(out).toHaveLength(2);
+  const broken = out.find((m) => m.id === 1)!;
+  expect(broken.score).toBe(0);
+  expect(broken.graduate).toBe(false);
+  expect(broken.kind).toBe("web");
+  // Desktop should still compute normally
+  const desk = out.find((m) => m.id === 2)!;
+  expect(desk.kind).toBe("desktop");
+  expect(desk.score).toBeGreaterThan(0);
+});
+
 test("buildSummary scores web + desktop and flags graduation", async () => {
   const out = await buildSummary({
     loadProjects: async () => [

@@ -1,8 +1,10 @@
 # Tracking — embed this in every web project
 
 Every **web** project in the 365 build shares ONE self-hosted Umami instance.
-Projects are separated by hostname + path in the analytics dashboard, so they
-all use the **same** website id.
+Projects are separated by **path within one shared website** in the analytics
+dashboard, so they all use the **same** website id. All current projects live
+on a single host (`peerapongsm.github.io`); multi-host disambiguation is a
+future enhancement.
 
 ## The snippet
 
@@ -30,6 +32,6 @@ break.
 - Dashboard + promotion score: this repo (`armory-analytics`)
 - Source of truth for the project list: the Armory's `projects.json`
 
-The dashboard reads `projects.json`, resolves each web project to its
-hostname+path, queries Umami for that segment, pulls download counts for desktop
-projects, and ranks everything by promotion score.
+The dashboard reads `projects.json`, resolves each web project to its path,
+queries Umami for that segment, pulls download counts for desktop projects,
+and ranks everything by promotion score.

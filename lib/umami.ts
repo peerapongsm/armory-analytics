@@ -24,6 +24,10 @@ export async function getWebStats(
   const endAt = Date.now();
   const startAt = endAt - rangeDays * 86400_000;
   const qs = new URLSearchParams({ startAt: String(startAt), endAt: String(endAt) });
+  // Segmentation today is by exact path within ONE shared Umami website.
+  // `hostname` is stored on the target for future multi-host disambiguation
+  // but is not sent here — Umami's basic stats `url` param is exact-path only.
+  // All current projects live on a single host (peerapongsm.github.io).
   if (target.pathPrefix) qs.set("url", target.pathPrefix);
   const res = await fetchFn(`${BASE()}/api/websites/${WEBSITE()}/stats?${qs}`, {
     headers: { authorization: `Bearer ${token}` },
