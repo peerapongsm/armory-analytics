@@ -1,15 +1,9 @@
-import type { ProjectMetrics } from "../lib/types";
+import { getSummary } from "../lib/getSummary";
 
 export const dynamic = "force-dynamic";
 
-async function getData(): Promise<{ projects: ProjectMetrics[] }> {
-  const base = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000";
-  const res = await fetch(`${base}/api/summary`, { next: { revalidate: 3600 } });
-  return res.json();
-}
-
 export default async function Page() {
-  const { projects } = await getData();
+  const projects = await getSummary();
   return (
     <main style={{ maxWidth: 880, margin: "0 auto", padding: 24, fontFamily: "system-ui" }}>
       <h1>Armory Analytics</h1>
