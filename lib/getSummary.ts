@@ -20,6 +20,6 @@ export const getSummary = unstable_cache(
   },
   // Bump the version segment when the computation changes — Vercel's data
   // cache persists across deployments, so a stale entry outlives the deploy.
-  ["summary-v3"],
+  ["summary-v4"],
   { revalidate: 3600 }
 );
