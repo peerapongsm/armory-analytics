@@ -2,6 +2,22 @@ import type { ArmoryProject, AnalyticsTarget, ProjectMetrics, WebStats } from ".
 import { toTarget } from "./projects";
 import { webScore, desktopScore, shouldGraduate } from "./score";
 
+// Bounded-concurrency map. Firing every project's Umami queries at once
+// (~80 requests) exhausts the Umami host's pooled DB connections -> 5xx.
+async function mapLimit<T, R>(items: T[], limit: number, fn: (item: T) => Promise<R>): Promise<R[]> {
+  const out: R[] = new Array(items.length);
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(limit, items.length) }, async () => {
+      while (next < items.length) {
+        const i = next++;
+        out[i] = await fn(items[i]);
+      }
+    })
+  );
+  return out;
+}
+
 export async function buildSummary(deps: {
   loadProjects: () => Promise<ArmoryProject[]>;
   getWebStats: (t: AnalyticsTarget) => Promise<WebStats>;
@@ -9,8 +25,7 @@ export async function buildSummary(deps: {
 }): Promise<ProjectMetrics[]> {
   const projects = await deps.loadProjects();
   const targets = projects.map(toTarget).filter((t): t is AnalyticsTarget => t !== null);
-  return Promise.all(
-    targets.map(async (t): Promise<ProjectMetrics> => {
+  return mapLimit(targets, 6, async (t): Promise<ProjectMetrics> => {
       try {
         if (t.kind === "web") {
           const web = await deps.getWebStats(t);
@@ -27,6 +42,5 @@ export async function buildSummary(deps: {
         }
         return { id: t.id, name: t.name, kind: "desktop", web: null, downloads: 0, score: 0, graduate: false };
       }
-    })
-  );
+  });
 }

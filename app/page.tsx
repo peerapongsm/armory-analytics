@@ -1,6 +1,9 @@
 import { getSummary } from "../lib/getSummary";
 
 export const dynamic = "force-dynamic";
+// Cold summary rebuild walks ~40 projects at bounded concurrency — needs
+// more than the default function budget.
+export const maxDuration = 60;
 
 export default async function Page() {
   const projects = await getSummary();

@@ -4,14 +4,28 @@ import { LEGACY_PAGES_HOST } from "./projects";
 const BASE = () => process.env.UMAMI_API_URL!;
 const WEBSITE = () => process.env.UMAMI_WEBSITE_ID!;
 
+// The Umami host (hobby serverless + pooled Postgres) throws transient 5xx
+// under bursts — one spaced retry rides most of them out.
+async function fetchOkWithRetry(doFetch: () => Promise<Response>, label: string): Promise<Response> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await doFetch();
+    if (res.ok) return res;
+    if (attempt >= 1 || res.status < 500) throw new Error(`${label} ${res.status}`);
+    await new Promise((r) => setTimeout(r, 1500));
+  }
+}
+
 export async function getToken(deps: { fetchFn?: typeof fetch } = {}): Promise<string> {
   const fetchFn = deps.fetchFn ?? fetch;
-  const res = await fetchFn(`${BASE()}/api/auth/login`, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ username: process.env.UMAMI_USERNAME, password: process.env.UMAMI_PASSWORD }),
-  });
-  if (!res.ok) throw new Error(`umami login ${res.status}`);
+  const res = await fetchOkWithRetry(
+    () =>
+      fetchFn(`${BASE()}/api/auth/login`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ username: process.env.UMAMI_USERNAME, password: process.env.UMAMI_PASSWORD }),
+      }),
+    "umami login"
+  );
   return ((await res.json()) as { token: string }).token;
 }
 
@@ -40,10 +54,13 @@ async function fetchSegment(
 ): Promise<RawStats> {
   const qs = new URLSearchParams({ startAt: String(startAt), endAt: String(endAt), hostname: seg.hostname });
   if (seg.path) qs.set("path", seg.path);
-  const res = await fetchFn(`${BASE()}/api/websites/${WEBSITE()}/stats?${qs}`, {
-    headers: { authorization: `Bearer ${token}` },
-  });
-  if (!res.ok) throw new Error(`umami stats ${res.status}`);
+  const res = await fetchOkWithRetry(
+    () =>
+      fetchFn(`${BASE()}/api/websites/${WEBSITE()}/stats?${qs}`, {
+        headers: { authorization: `Bearer ${token}` },
+      }),
+    "umami stats"
+  );
   const d = (await res.json()) as Partial<RawStats>;
   return {
     pageviews: d.pageviews || 0,
