@@ -17,8 +17,8 @@ export interface AnalyticsTarget {
   id: number;
   name: string;
   kind: "web" | "desktop";
-  hostname: string | null;   // web only
-  pathPrefix: string | null; // web only, e.g. "/armory/"
+  hostnames: string[];       // web only — every hostname this project serves from (current + legacy)
+  legacyPath: string | null; // web only — path prefix on the shared legacy GitHub Pages host
   repoOwner: string | null;  // desktop only, for releases
   repoName: string | null;   // desktop only
 }

@@ -6,10 +6,24 @@ test("parseRepo extracts owner/name", () => {
   expect(parseRepo("")).toBeNull();
 });
 
-test("web project -> web target with hostname+path", () => {
+test("migrated web project -> own hostname + legacy Pages path from repo name", () => {
+  const t = toTarget({ id: 1, name: "Armory", slug: "armory", track: "live", status: "done",
+    url: "https://peerapongsm.dev/", repo: "https://github.com/peerapongsm/armory", download: "" });
+  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: ["peerapongsm.dev"], legacyPath: "/armory/" });
+});
+
+test("web project still on the shared Pages host -> path slice only", () => {
   const t = toTarget({ id: 1, name: "Armory", slug: "armory", track: "live", status: "done",
     url: "https://peerapongsm.github.io/armory/", repo: "https://github.com/peerapongsm/armory", download: "" });
-  expect(t).toMatchObject({ id: 1, kind: "web", hostname: "peerapongsm.github.io", pathPrefix: "/armory/" });
+  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: [], legacyPath: "/armory/" });
+});
+
+test("web project with known legacy Vercel hosts includes them", () => {
+  const t = toTarget({ id: 3, name: "Yai-Aree", slug: "cbt-thought-record", track: "live", status: "done",
+    url: "https://yai-aree.peerapongsm.dev/", repo: "", download: "" });
+  expect(t?.hostnames).toContain("yai-aree.peerapongsm.dev");
+  expect(t?.hostnames).toContain("yai-aree.vercel.app");
+  expect(t?.legacyPath).toBeNull(); // no repo -> never lived on the shared Pages host
 });
 
 test("desktop project -> desktop target with repo owner/name", () => {
