@@ -18,6 +18,8 @@ export const getSummary = unstable_cache(
     data.sort((a, b) => b.score - a.score);
     return data;
   },
-  ["summary"],
+  // Bump the version segment when the computation changes — Vercel's data
+  // cache persists across deployments, so a stale entry outlives the deploy.
+  ["summary-v2"],
   { revalidate: 3600 }
 );
