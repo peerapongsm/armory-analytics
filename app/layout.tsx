@@ -23,6 +23,13 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`${geistSans.variable} ${geistMono.variable}`}>
+      <head>
+        <script
+          defer
+          src="https://umami-host-peerapongsms-projects.vercel.app/script.js"
+          data-website-id="3f09453d-0b39-443e-8845-5e65611cc58a"
+        />
+      </head>
       <body>{children}</body>
     </html>
   );

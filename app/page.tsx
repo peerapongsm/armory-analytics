@@ -13,12 +13,11 @@ export default async function Page() {
       <p style={{ color: "#888" }}>365 things in a year — ranked by promotion score.</p>
       <table style={{ width: "100%", borderCollapse: "collapse" }}>
         <thead>
-          <tr><th align="left">#</th><th align="left">Project</th><th>Kind</th><th>Audience</th><th>Score</th><th>Graduate?</th></tr>
+          <tr><th align="left">Project</th><th>Kind</th><th>Audience</th><th>Score</th><th>Graduate?</th></tr>
         </thead>
         <tbody>
           {projects.map((p) => (
             <tr key={p.id} style={{ borderTop: "1px solid #eee" }}>
-              <td>{p.id}</td>
               <td>{p.name}</td>
               <td align="center">{p.kind}</td>
               <td align="center">{p.kind === "web" ? `${p.web?.visitors ?? 0} vis` : `${p.downloads ?? 0} dl`}</td>

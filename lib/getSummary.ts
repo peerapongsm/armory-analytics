@@ -15,11 +15,12 @@ export const getSummary = unstable_cache(
       getWebStats: (t) => getWebStats(t, 30, { token }),
       getDownloads,
     });
-    data.sort((a, b) => b.score - a.score);
+    const audience = (p: ProjectMetrics) => p.web?.visitors ?? p.downloads ?? 0;
+    data.sort((a, b) => audience(b) - audience(a));
     return data;
   },
   // Bump the version segment when the computation changes — Vercel's data
   // cache persists across deployments, so a stale entry outlives the deploy.
-  ["summary-v4"],
+  ["summary-v5"],
   { revalidate: 3600 }
 );
