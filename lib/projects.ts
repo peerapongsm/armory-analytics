@@ -36,9 +36,10 @@ export function toTarget(p: ArmoryProject): AnalyticsTarget | null {
     legacyPath = u.pathname || "/";
   } else {
     hostnames.add(u.hostname);
-    // GitHub Pages served the project at /<repo-name>/ before the domain move.
-    const r = parseRepo(p.repo);
-    if (r) legacyPath = `/${r.name}/`;
+    // Migrated projects no longer count their old /<repo>/ slice of the shared
+    // Pages host: the extra ~48 stats calls per summary rebuild cost more than
+    // the residual old-link traffic is worth (~119 pv/30d across the whole host,
+    // measured 2026-07-31).
   }
   for (const h of LEGACY_VERCEL_HOSTS[p.slug] ?? []) hostnames.add(h);
   return { id: p.id, name: p.name, kind: "web", hostnames: [...hostnames], legacyPath, repoOwner: null, repoName: null };

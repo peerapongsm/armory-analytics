@@ -21,7 +21,7 @@ export const getSummary = unstable_cache(
   },
   // Bump the version segment when the computation changes — Vercel's data
   // cache persists across deployments, so a stale entry outlives the deploy.
-  ["summary-v5"],
+  ["summary-v6"],
   // 24h: stats are 30-day aggregates, hourly freshness just burst-loads the
   // Umami host (each rebuild = ~60-100 stats calls).
   { revalidate: 86400 }

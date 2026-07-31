@@ -6,10 +6,10 @@ test("parseRepo extracts owner/name", () => {
   expect(parseRepo("")).toBeNull();
 });
 
-test("migrated web project -> own hostname + legacy Pages path from repo name", () => {
+test("migrated web project -> own hostname only, legacy Pages slice dropped", () => {
   const t = toTarget({ id: 1, name: "Armory", slug: "armory", track: "live", status: "done",
     url: "https://peerapongsm.dev/", repo: "https://github.com/peerapongsm/armory", download: "" });
-  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: ["peerapongsm.dev"], legacyPath: "/armory/" });
+  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: ["peerapongsm.dev"], legacyPath: null });
 });
 
 test("web project still on the shared Pages host -> path slice only", () => {
