@@ -8,14 +8,14 @@ test("parseRepo extracts owner/name", () => {
 
 test("migrated web project -> own hostname only, legacy Pages slice dropped", () => {
   const t = toTarget({ id: 1, name: "Armory", slug: "armory", track: "live", status: "done",
-    url: "https://peerapongsm.dev/", repo: "https://github.com/peerapongsm/armory", download: "" });
-  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: ["peerapongsm.dev"], legacyPath: null });
+    url: "https://armory.peerapongsm.dev/", repo: "https://github.com/peerapongsm/armory", download: "" });
+  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: ["armory.peerapongsm.dev", "peerapongsm.dev"], legacyPath: null });
 });
 
 test("web project still on the shared Pages host -> path slice only", () => {
-  const t = toTarget({ id: 1, name: "Armory", slug: "armory", track: "live", status: "done",
-    url: "https://peerapongsm.github.io/armory/", repo: "https://github.com/peerapongsm/armory", download: "" });
-  expect(t).toMatchObject({ id: 1, kind: "web", hostnames: [], legacyPath: "/armory/" });
+  const t = toTarget({ id: 21, name: "Makruk", slug: "makruk", track: "live", status: "done",
+    url: "https://peerapongsm.github.io/makruk/", repo: "https://github.com/peerapongsm/makruk", download: "" });
+  expect(t).toMatchObject({ id: 21, kind: "web", hostnames: [], legacyPath: "/makruk/" });
 });
 
 test("web project with known legacy Vercel hosts includes them", () => {

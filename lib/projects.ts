@@ -14,6 +14,8 @@ const LEGACY_VERCEL_HOSTS: Record<string, string[]> = {
   "scam-call-trainer": ["scam-call-trainer.vercel.app"],
   promptfiled: ["prompt-filed.vercel.app"],
   "armory-analytics": ["armory-analytics-peerapongsms-projects.vercel.app"],
+  // The Armory served the apex domain until 2026-10-14 (then moved to armory.peerapongsm.dev).
+  armory: ["peerapongsm.dev"],
 };
 
 export function parseRepo(repoUrl: string): { owner: string; name: string } | null {
